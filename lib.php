@@ -2263,7 +2263,11 @@ class plagiarism_plugin_turnitin extends plagiarism_plugin {
                     $file = $fs->get_file_by_hash($identifier);
 
                     $timemodified = $file->get_timemodified();
-                    $filename = $file->get_filename();
+                    /// uji: change te filename
+                    require_once($CFG->dirroot . '/local/plagiarism/locallib.php');
+                    $filename = local_plagiarism_get_decoupled_filename($file->get_filename());
+                    //$filename = $file->get_filename();
+                    /// uji: fin
                 } else {
                     // Check when text submission was last modified.
                     switch ($cm->modname) {

@@ -51,10 +51,16 @@ class TiiPseudoUser extends TiiUser {
      * @return string
      */
     public function getEmail() {
+        /// uji: email field is already obfuscated
+        return $this->email;
+/*
         if ( substr( $this->pseudodomain, 0, 1 ) != '@' ) {
             $this->pseudodomain = '@' . $this->pseudodomain;
         }
         return sha1( $this->email.$this->pseudosalt ) . $this->pseudodomain;
+ *
+ */
+        /// uji: fin
     }
 
     /**

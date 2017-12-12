@@ -235,8 +235,13 @@ class turnitinplugin_view {
             $this->lock($mform, $location, $locks);
             $mform->addHelpButton('plagiarism_allow_non_or_submissions', 'allownonor', 'plagiarism_turnitin');
 
+            /// uji: we don't want out papers at the standardrepository at the moment
+            $suboptions = array(0 => get_string('norepository', 'plagiarism_turnitin'));
+/*
             $suboptions = array(0 => get_string('norepository', 'plagiarism_turnitin'),
                                 1 => get_string('standardrepository', 'plagiarism_turnitin'));
+ */
+            /// uji: fin
             switch ($config->repositoryoption) {
                 case 0; // Standard options.
                     $mform->addElement('select', 'plagiarism_submitpapersto', get_string('submitpapersto', 'plagiarism_turnitin'), $suboptions);

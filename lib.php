@@ -864,7 +864,6 @@ class plagiarism_plugin_turnitin extends plagiarism_plugin {
 
                 // Display links to OR, GradeMark and show relevant errors.
                 if ($plagiarismfile) {
-
                     if ($plagiarismfile->statuscode == 'success') {
                         if ($istutor || $linkarray["userid"] == $USER->id) {
                             $output .= html_writer::tag('div',
@@ -1114,11 +1113,13 @@ class plagiarism_plugin_turnitin extends plagiarism_plugin {
                     // Add Error if the user has not accepted EULA for submissions made before instant submission was removed.
                     $eulaerror = "";
                     if ($linkarray["userid"] != $USER->id && $submittinguser == $author && $istutor) {
+
                         // There is a moodle plagiarism bug where get_links is called twice, the first loop is incorrect and is killing
                         // this functionality. Have to check that user exists here first else there will be a fatal error.
                         if ($DB->get_record('user', array('id' => $linkarray["userid"]))) {
                             // We need to check for security that the user is actually on the course.
                             if ($moduleobject->user_enrolled_on_course($context, $linkarray["userid"])) {
+
                                 $user = new turnitintooltwo_user($linkarray["userid"], "Learner");
                                 if ($user->useragreementaccepted != 1) {
                                     $erroricon = html_writer::tag('div', $OUTPUT->pix_icon('doc-x-grey', get_string('errorcode3', 'plagiarism_turnitin'),

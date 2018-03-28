@@ -1670,13 +1670,18 @@ class plagiarism_plugin_turnitin extends plagiarism_plugin {
         }
 
         // Join all tutors to the course in Turnitin.
-        if (!empty($tutors)) {
-            foreach ($tutors as $tutor) {
-                // Create the admin as a user within Turnitin.
-                $user = new turnitin_user($tutor->id, 'Instructor');
-                $user->join_user_to_class($turnitincourse->turnitin_cid);
+        /// uji: sólo creo los tutores desde el cron. Evitamos que se suban tal
+        ///      cual todo el profesorado.
+        if ($workflowcontext == 'cron') {
+            if (!empty($tutors)) {
+                foreach ($tutors as $tutor) {
+                    // Create the admin as a user within Turnitin.
+                    $user = new turnitin_user($tutor->id, 'Instructor');
+                    $user->join_user_to_class($turnitincourse->turnitin_cid);
+                }
             }
-        }
+	}
+        /// uji: fin
 
         return $turnitincourse;
     }

@@ -142,6 +142,10 @@ class turnitin_view {
         if ($location != "defaults") {
             $mform->addElement('header', 'plugin_header', get_string('turnitinpluginsettings', 'plagiarism_turnitin'));
 
+            /// uji: Añadimos un enlace a la ayuda sobre Turnitin.
+            $mform->addElement('static', 'turnitin_help', get_string('turnitin_help_label', 'local_plagiarism'), get_string('turnitin_help', 'local_plagiarism'));
+            /// uji: fin
+
             // Add in custom Javascript and CSS.
             $PAGE->requires->jquery_plugin('ui');
             $PAGE->requires->js_call_amd('plagiarism_turnitin/peermark', 'peermarkLaunch');

@@ -98,7 +98,7 @@ require_once($CFG->dirroot.'/plagiarism/turnitin/classes/modules/turnitin_worksh
 require_once($CFG->dirroot.'/plagiarism/turnitin/classes/modules/turnitin_coursework.class.php');
 
 /// juan: falta algun import.
-require_once($CFG->dirroot.'/mod/turnitintooltwo/turnitintooltwo_user.class.php');
+require_once($CFG->dirroot.'/mod/turnitintooltwo/lib.php');
 /// juan: fin
 
 class plagiarism_plugin_turnitin extends plagiarism_plugin {

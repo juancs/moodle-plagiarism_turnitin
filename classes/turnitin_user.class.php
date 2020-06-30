@@ -53,8 +53,14 @@ class turnitin_user {
         $this->email = "";
         $this->username = "";
 
+        /// uji: pseudonymization.
+        $this->moodleuser = null;
+        /// uji: fin
+
         if ($id != 0) {
-            $this->get_moodle_user($this->id);
+            /// uji: pseudonymization.
+            $this->moodleuser = $this->get_moodle_user($this->id);
+            /// uji: fin
             if ($finduser === true) {
                 $this->get_tii_user_id();
             }
@@ -119,9 +125,15 @@ class turnitin_user {
      * @return string A pseudo firstname address
      */
     public function get_pseudo_firstname() {
+        /// uji: pseudonimización.
+        $user = local_plagiarism_get_decoupled_user($this->moodleuser);
+        return $user->firstname;
+        /// uji: fin.
+/*
         $config = plagiarism_plugin_turnitin::plagiarism_turnitin_admin_config();
 
         return !empty( $config->plagiarism_turnitin_pseudofirstname ) ? $config->plagiarism_turnitin_pseudofirstname : PLAGIARISM_TURNITIN_DEFAULT_PSEUDO_FIRSTNAME;
+*/
     }
 
     /**
@@ -131,6 +143,11 @@ class turnitin_user {
      * @return string A pseudo lastname address
      */
     public function get_pseudo_lastname() {
+        /// uji: pseudonimize lastname based on lastname and salt
+        $user = local_plagiarism_get_decoupled_user($this->moodleuser);
+        return $user->lastname;
+        /// uji: fin
+/*
         global $DB;
         $config = plagiarism_plugin_turnitin::plagiarism_turnitin_admin_config();
         $userinfo = $DB->get_record('user_info_data', array('userid' => $this->id, 'fieldid' => $config->plagiarism_turnitin_pseudolastname));
@@ -153,6 +170,7 @@ class turnitin_user {
             $uniqueid = get_string('user');
         }
         return $uniqueid;
+*/
     }
 
     /**
@@ -204,10 +222,19 @@ class turnitin_user {
         if (!empty($config->plagiarism_turnitin_enablepseudo) && $this->role == "Learner") {
             $user = new TiiPseudoUser($this->get_pseudo_domain());
             $user->setPseudoSalt($config->plagiarism_turnitin_pseudosalt);
+            /// uji: pseudonymization.
+            global $CFG;
+            require_once($CFG->dirroot . '/local/plagiarism/locallib.php');
+            $decoupled_user = local_plagiarism_get_decoupled_user($this->moodleuser);
+            $user->setEmail($decoupled_user->email);
+            /// uji: fin
+
         } else {
             $user = new TiiUser();
+            /// uji: pseudonymization.
+            $user->setEmail($this->email);
+            /// uji: fin
         }
-        $user->setEmail($this->email);
 
         try {
             $response = $turnitincall->findUser($user);
@@ -248,13 +275,22 @@ class turnitin_user {
             $user->setPseudoSalt($config->plagiarism_turnitin_pseudosalt);
             $user->setFirstName($this->get_pseudo_firstname());
             $user->setLastName($this->get_pseudo_lastname());
+            /// uji: obfuscate email
+            global $CFG;
+            require_once($CFG->dirroot . '/local/plagiarism/locallib.php');
+            $decoupled_user = local_plagiarism_get_decoupled_user($this->moodleuser);
+            $user->setEmail($decoupled_user->email);
+            /// uji: fin
         } else {
             $user = new TiiUser();
             $user->setFirstName($this->firstname);
             $user->setLastName($this->lastname);
+            /// uji: pseudonimización.
+            $user->setEmail($this->email);
+            /// uji: fin
         }
 
-        $user->setEmail($this->email);
+        //$user->setEmail($this->email);
         $user->setDefaultRole($this->role);
 
         try {

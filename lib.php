@@ -84,9 +84,6 @@ require_once($CFG->dirroot.'/plagiarism/turnitin/classes/modules/turnitin_quiz.c
 require_once($CFG->dirroot.'/plagiarism/turnitin/classes/modules/turnitin_workshop.class.php');
 require_once($CFG->dirroot.'/plagiarism/turnitin/classes/modules/turnitin_coursework.class.php');
 
-/// juan: falta algun import.
-require_once($CFG->dirroot.'/mod/turnitintooltwo/lib.php');
-/// juan: fin
 
 class plagiarism_plugin_turnitin extends plagiarism_plugin {
 
@@ -1194,7 +1191,7 @@ class plagiarism_plugin_turnitin extends plagiarism_plugin {
                         if ($DB->get_record('user', array('id' => $linkarray["userid"]))) {
                             // We need to check for security that the user is actually on the course.
                             if ($moduleobject->user_enrolled_on_course($context, $linkarray["userid"])) {
-                                $user = new turnitintooltwo_user($linkarray["userid"], "Learner");
+                                $user = new turnitin_user($linkarray["userid"], "Learner");
                                 if ($user->useragreementaccepted != 1) {
                                     $erroricon = html_writer::tag('div', $OUTPUT->pix_icon('doc-x-grey', get_string('errorcode3', 'plagiarism_turnitin'),
                                                                             'plagiarism_turnitin'),

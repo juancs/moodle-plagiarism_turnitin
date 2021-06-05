@@ -493,6 +493,36 @@ function xmldb_plagiarism_turnitin_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2020091401, 'plagiarism', 'turnitin');
     }
 
+    if ($oldversion < 2020113002) {
+
+        // Define field role to be added to plagiarism_turnitin_users.
+        $table = new xmldb_table('plagiarism_turnitin_users');
+        $field = new xmldb_field('role', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, 'Instructor', 'userid');
+
+        // Conditionally launch add field role.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Turnitin savepoint reached.
+        upgrade_plugin_savepoint(true, 2020113002, 'plagiarism', 'turnitin');
+    }
+
+    if ($oldversion < 2020113002.01) {
+
+        // Define index userid_role (unique) to be dropped form plagiarism_turnitin_users.
+        $table = new xmldb_table('plagiarism_turnitin_users');
+        $index = new xmldb_index('userid_role', XMLDB_INDEX_UNIQUE, ['userid', 'role']);
+
+        // Conditionally launch drop index userid_role.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Turnitin savepoint reached.
+        upgrade_plugin_savepoint(true, 2020113002.01, 'plagiarism', 'turnitin');
+    }
+
     return $result;
 }
 

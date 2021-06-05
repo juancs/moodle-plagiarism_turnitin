@@ -46,6 +46,7 @@ class turnitin_user {
         $this->set_user_role($role);
         $this->enrol = $enrol;
         $this->workflowcontext = $workflowcontext;
+        $this->role = $role;
 
         $this->firstname = "";
         $this->lastname = "";
@@ -54,7 +55,7 @@ class turnitin_user {
         $this->username = "";
 
         if ($id != 0) {
-            $this->get_moodle_user($this->id);
+            $this->get_moodle_user($this->id, $role);
             if ($finduser === true) {
                 $this->get_tii_user_id();
             }
@@ -65,9 +66,10 @@ class turnitin_user {
      * Returns the Moodle User Data object for the specified user
      *
      * @param var $userid The moodle userid
+     * @param var $role The role of the user
      * @return object A properly built Moodle User Data object with rebuilt email address
      */
-    public function get_moodle_user($userid) {
+    public function get_moodle_user($userid, $role = 'Learner') {
         global $DB;
 
         $user = $DB->get_record('user', array('id' => $userid));
@@ -91,7 +93,7 @@ class turnitin_user {
         $this->email = trim(html_entity_decode($user->email));
         $this->username = $user->username;
 
-        $turnitinuser = $DB->get_record('plagiarism_turnitin_users', array('userid' => $this->id));
+        $turnitinuser = $DB->get_record('plagiarism_turnitin_users', array('userid' => $this->id, 'role' => $role));
 
         $this->instructorrubrics = array();
         if (!empty($turnitinuser->instructor_rubrics)) {
@@ -165,7 +167,7 @@ class turnitin_user {
      */
     private function get_tii_user_id() {
         global $DB;
-        $tiiuser = $DB->get_record("plagiarism_turnitin_users", array("userid" => $this->id), "turnitin_uid, user_agreement_accepted");
+        $tiiuser = $DB->get_record("plagiarism_turnitin_users", array("userid" => $this->id, 'role' => $this->role), "turnitin_uid, user_agreement_accepted");
         if (!$tiiuser) {
             $this->tiiuserid = 0;
             $this->useragreementaccepted = 0;
@@ -343,13 +345,14 @@ class turnitin_user {
         global $DB;
         $user = new stdClass();
         $user->userid = $this->id;
+        $user->role = $this->role;
         $user->turnitin_uid = $this->tiiuserid;
         $user->turnitin_utp = 1;
         if ($this->role == "Instructor") {
             $user->turnitin_utp = 2;
         }
 
-        if ($turnitinuser = $DB->get_record("plagiarism_turnitin_users", array("userid" => $this->id))) {
+        if ($turnitinuser = $DB->get_record("plagiarism_turnitin_users", array("userid" => $this->id, 'role' => $this->role))) {
             $user->id = $turnitinuser->id;
             $user->turnitin_utp = $turnitinuser->turnitin_utp;
             if ((!$DB->update_record('plagiarism_turnitin_users', $user))) {
@@ -428,10 +431,11 @@ class turnitin_user {
             $readuser = $response->getUser();
 
             if ($readuser->getAcceptedUserAgreement()) {
-                $turnitinuser = $DB->get_record('plagiarism_turnitin_users', array('userid' => $this->id));
+                $turnitinuser = $DB->get_record('plagiarism_turnitin_users', array('userid' => $this->id, 'role' => $this->role));
 
                 $tiiuserinfo = new stdClass();
                 $tiiuserinfo->id = $turnitinuser->id;
+                $tiiuserinfo->role = $turnitinuser->role;
                 $tiiuserinfo->user_agreement_accepted = 1;
 
                 $DB->update_record('plagiarism_turnitin_users', $tiiuserinfo);
@@ -519,7 +523,7 @@ class turnitin_user {
             $rubricarray[$rubric->getRubricId()] = $rubric->getRubricName();
         }
 
-        if ($turnitinuser = $DB->get_record("plagiarism_turnitin_users", array("userid" => $this->id))) {
+        if ($turnitinuser = $DB->get_record("plagiarism_turnitin_users", array("userid" => $this->id, 'role' => $this->role))) {
             $turnitinuser->instructor_rubrics = json_encode($rubricarray);
             $DB->update_record('plagiarism_turnitin_users', $turnitinuser);
         }

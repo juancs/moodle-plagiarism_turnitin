@@ -42,7 +42,7 @@ class plagiarism_turnitin_user_class_testcase extends plagiarism_turnitin_test_l
     /**
      * Set Overwrite mtrace to avoid output during the tests.
      */
-    public function setup() {
+    public function setup(): void {
         // Stub a fake tii comms.
         $this->faketiicomms = $this->getMockBuilder(turnitin_comms::class)
             ->disableOriginalConstructor()
@@ -111,5 +111,37 @@ class plagiarism_turnitin_user_class_testcase extends plagiarism_turnitin_test_l
         // We should have a Turnitin user ID of 0.
         $user = $DB->get_record('plagiarism_turnitin_users', array('id' => $testuser["joins"][0]));
         $this->assertEquals(0, $user->turnitin_uid);
+    }
+
+    public function test_turnitin_user_returns_different_turnitin_user_for_the_same_moodle_user_but_with_different_roles() {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        set_config('plagiarism_turnitin_pseudolastname', 1, 'plagiarism_turnitin');
+        set_config('plagiarism_turnitin_lastnamegen', 1, 'plagiarism_turnitin');
+
+        $user = $this->getDataGenerator()->create_user();
+
+        $tiiuserlearner = new \stdClass();
+        $tiiuserlearner->userid = $user->id;
+        $tiiuserlearner->role = 'Learner';
+        $tiiuserlearner->turnitin_uid = 1;
+
+        $tiiuserlearner->id = $DB->insert_record('plagiarism_turnitin_users', $tiiuserlearner);
+
+        $tiiuserinstructor = clone $tiiuserlearner;
+        unset($tiiuserinstructor->id);
+        $tiiuserinstructor->role = 'Instructor';
+        $tiiuserinstructor->turnitin_uid = 2;
+
+        $tiiuserinstructor->id = $DB->insert_record('plagiarism_turnitin_users', $tiiuserinstructor);
+
+        $t1 = new turnitin_user($user->id, 'Learner');
+        $t2 = new turnitin_user($user->id, 'Instructor');
+
+        $this->assertEquals(2, $DB->count_records('plagiarism_turnitin_users'));
+        $this->assertEquals(1, $t1->tiiuserid);
+        $this->assertEquals(2, $t2->tiiuserid);
     }
 }

@@ -140,6 +140,9 @@ class plagiarism_turnitin_user_class_testcase extends plagiarism_turnitin_test_l
         $t1 = new turnitin_user($user->id, 'Learner');
         $t2 = new turnitin_user($user->id, 'Instructor');
 
+        print_r($t1);
+        print_r($t2);
+
         $this->assertEquals(2, $DB->count_records('plagiarism_turnitin_users'));
         $this->assertEquals(1, $t1->tiiuserid);
         $this->assertEquals(2, $t2->tiiuserid);
